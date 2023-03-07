@@ -6,7 +6,11 @@ from sys import argv
 
 ENDPOINT = ''
 
-record = {'hostname': environ['HOSTNAME'],'service': environ['PAM_SERVICE'], 'user': environ['PAM_USER']}
+record = {
+    'hostname': environ['HOSTNAME'],
+    'service': environ['PAM_SERVICE'],
+    'user': environ['PAM_USER']
+}
 if 'PAM_RHOST' not in environ or environ['PAM_RHOST'] == '':
     record['rhost'] = None
 else:
@@ -18,4 +22,7 @@ elif argv[1] == 'fail':
 
 json_object = json.dumps(record)
 
-requests.post(ENDPOINT, json=json_object)
+try:
+    requests.post(ENDPOINT, json=json_object)
+except:
+    pass
