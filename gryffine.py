@@ -1,14 +1,13 @@
 #!/usr/bin/python3
-import json
 import requests
-from os import environ
+from os import environ, uname
 from sys import argv
 from syslog import syslog, LOG_ERR
 
 ENDPOINT = ''
 
 record = {
-    'hostname': environ['HOSTNAME'],
+    'hostname': uname()[1],
     'service': environ['PAM_SERVICE'],
     'user': environ['PAM_USER'],
     'rhost': environ.get('PAM_RHOST')
@@ -18,10 +17,8 @@ if argv[1] == 'success':
 elif argv[1] == 'fail':
     record['is_successful'] = False
 
-data = json.dumps(record)
-
 try:
-    requests.post(ENDPOINT, json=data)
+    requests.post(ENDPOINT, json=record)
 except Exception as err:
     error_message = 'Gryffine monitoring system error: '
     error_message += str(err)
