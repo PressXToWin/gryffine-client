@@ -10,12 +10,9 @@ ENDPOINT = ''
 record = {
     'hostname': environ['HOSTNAME'],
     'service': environ['PAM_SERVICE'],
-    'user': environ['PAM_USER']
+    'user': environ['PAM_USER'],
+    'rhost': environ.get('PAM_RHOST')
 }
-if 'PAM_RHOST' not in environ or environ['PAM_RHOST'] == '':
-    record['rhost'] = None
-else:
-    record['rhost'] = environ['PAM_RHOST']
 if argv[1] == 'success':
     record['is_successful'] = True
 elif argv[1] == 'fail':
