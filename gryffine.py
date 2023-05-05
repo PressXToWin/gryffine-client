@@ -3,6 +3,7 @@ import json
 import requests
 from os import environ
 from sys import argv
+from syslog import syslog, LOG_ERR
 
 ENDPOINT = ''
 
@@ -20,9 +21,11 @@ if argv[1] == 'success':
 elif argv[1] == 'fail':
     record['is_successful'] = False
 
-json_object = json.dumps(record)
+data = json.dumps(record)
 
 try:
-    requests.post(ENDPOINT, json=json_object)
-except:
-    pass
+    requests.post(ENDPOINT, json=data)
+except Exception as err:
+    error_message = 'Gryffine monitoring system error: '
+    error_message += str(err)
+    syslog(LOG_ERR, error_message)
