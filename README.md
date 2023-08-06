@@ -1,56 +1,56 @@
 # Gryffine-client
 
-Система мониторинга и аудита попыток логина в ОС Linux (клиентская часть). Данный софт отправляет на сервер информацию о попытках входа в реальном времени.
+Linux OS Login Attempts Monitoring and Auditing System (client-side). This software sends real-time login attempt information to the server.
 
-## Как это работает
+## How it works
 
-Данный скрипт запускается с помощью PAM (Pluggable Authentication Modules). В окружение скрипта передаётся информация о попытке логина и детали этой попытки. Далее эта информация идёт POST-запросом на заранее установленный эндпоинт. Предполагается использование вместе с [Gryffine-server](https://github.com/PressXToWin/gryffine-server), но каких-либо искусственных технических ограничений на использование с альтернативной серверной частью не накладывается. 
+This script is executed using PAM (Pluggable Authentication Module). Information about the login attempt and its details are passed to the script's environment. Then, this information is sent to a preconfigured endpoint using a POST request. It is intended to be used together with [Gryffine-server](https://github.com/PressXToWin/gryffine-server), but there are no artificial technical limitations on its use with an alternative server-side component.
 
-## Установка
-Клонируем репозиторий
+## Installation
+Clone the repository
 
 ```git clone https://github.com/PressXToWin/gryffine-client.git```
 
-В скрипте gryffine.py указываем эндпоинт, на который будет отправляться информация. Для [Gryffine-server](https://github.com/PressXToWin/gryffine-server) значение по умолчанию будет
+In the gryffine.py script, specify the endpoint to which the information will be sent. For [Gryffine-server](https://github.com/PressXToWin/gryffine-server), the default value will be
 
 ```ENDPOINT = 'http://gryffine-server/api/v1/records/'```
 
-Копируем скрипт в директорию ```/usr/local/bin/```
+Copy the script to the directory ```/usr/local/bin/```
 
 ```sudo cp gryffine-client/gryffine.py /usr/local/bin/gryffine.py```
 
-Создаём бэкап конфига PAM 
+Create a backup of the PAM configuration
 
 ```sudo cp /etc/pam.d/common-auth /etc/pam.d/common-auth.bkp```
 
-Изменяем конфиг PAM следующим образом:
-* строчку 
+Modify the PAM configuration as follows:
+* Change the line 
 
-```auth    [success=1 default=ignore]      pam_unix.so nullok_secure``` 
+```auth    [success=1 default=ignore]      pam_unix.so nullok_secure```
 
-меняем на 
+to
 
 ```auth    [success=2 default=ignore]      pam_unix.so nullok_secure```
 
-* следующей строчкой добавляем
+* Add the following line
 
 ```auth    optional                        pam_exec.so /usr/local/bin/gryffine.py fail```
 
-* после строчки 
+* After the line
 
 ```auth    requisite                       pam_deny.so```
 
-добавляем
+add
 
 ```auth    optional                        pam_exec.so /usr/local/bin/gryffine.py success```
 
-В результате должно получиться что-то наподобие
+As a result, it should look something like this:
 
 ```
 # here are the per-package modules (the "Primary" block)
 auth    [success=2 default=ignore]      pam_unix.so nullok_secure
 # here's the fallback if no module succeeds
-auth    optional                        pam_exec.so /usr/local/bin/gryffine.py fail`
+auth    optional                        pam_exec.so /usr/local/bin/gryffine.py fail
 auth    requisite                       pam_deny.so
 # prime the stack with a positive return value if there isn't one already;
 # this avoids us returning an error just because nothing sets a success code
