@@ -11,10 +11,6 @@ Clone the repository
 
 ```git clone https://github.com/PressXToWin/gryffine-client.git```
 
-In the gryffine.py script, specify the endpoint to which the information will be sent. For [Gryffine-server](https://github.com/PressXToWin/gryffine-server), the default value will be
-
-```ENDPOINT = 'http://gryffine-server/api/v1/records/'```
-
 Copy the script to the directory ```/usr/local/bin/```
 
 ```sudo cp gryffine-client/gryffine.py /usr/local/bin/gryffine.py```
@@ -32,17 +28,17 @@ to
 
 ```auth    [success=2 default=ignore]      pam_unix.so nullok_secure```
 
-* Add the following line
+* Add the following line with action for case of failed login and set the endpoint
 
-```auth    optional                        pam_exec.so /usr/local/bin/gryffine.py fail```
+```auth    optional                        pam_exec.so /usr/local/bin/gryffine.py http://gryffine-server/api/v1/records/ fail```
 
 * After the line
 
 ```auth    requisite                       pam_deny.so```
 
-add
+add action for case of successful login and set the endpoint
 
-```auth    optional                        pam_exec.so /usr/local/bin/gryffine.py success```
+```auth    optional                        pam_exec.so /usr/local/bin/gryffine.py http://gryffine-server/api/v1/records/ success```
 
 As a result, it should look something like this:
 
@@ -50,12 +46,12 @@ As a result, it should look something like this:
 # here are the per-package modules (the "Primary" block)
 auth    [success=2 default=ignore]      pam_unix.so nullok_secure
 # here's the fallback if no module succeeds
-auth    optional                        pam_exec.so /usr/local/bin/gryffine.py fail
+auth    optional                        pam_exec.so /usr/local/bin/gryffine.py http://gryffine-server/api/v1/records/ fail
 auth    requisite                       pam_deny.so
 # prime the stack with a positive return value if there isn't one already;
 # this avoids us returning an error just because nothing sets a success code
 # since the modules above will each just jump around
-auth    optional                        pam_exec.so /usr/local/bin/gryffine.py success
+auth    optional                        pam_exec.so /usr/local/bin/gryffine.py http://gryffine-server/api/v1/records/ success
 auth    required                        pam_permit.so
 # and here are more per-package modules (the "Additional" block)
 auth    optional                        pam_cap.so 
